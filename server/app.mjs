@@ -61,7 +61,7 @@ export async function createRequestHandler({ root, dataFile, secureCookie = fals
       }
       if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405); return res.end(); }
       const path = decodeURIComponent(url.pathname);
-      if (!['/', '/index.html', '/styles.css'].includes(path) && !/^\/(src|data|assets)\//.test(path)) { res.writeHead(404); return res.end('Not found'); }
+      if (!['/', '/index.html', '/height-sample.html', '/styles.css'].includes(path) && !/^\/(src|data|assets)\//.test(path)) { res.writeHead(404); return res.end('Not found'); }
       const target = resolve(root, '.' + (path === '/' ? '/index.html' : path));
       if (!target.startsWith(root + sep) || target.slice(root.length + 1).split(/[\\/]/).some(x => x.startsWith('.')) || !(await stat(target)).isFile()) { res.writeHead(404); return res.end('Not found'); }
       const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml' };

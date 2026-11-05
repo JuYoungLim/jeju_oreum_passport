@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>오름 높이별 이미지 · 로컬 샘플</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/src/height-sample.css">
+  <script type="module" src="/src/height-sample.js"></script>
+</head>
+<body class="height-sample-page">
+  <header class="sample-header"><a href="/">↖ 오름오름으로 돌아가기</a><span>DESIGN SAMPLE · 01</span></header>
+  <main class="sample-main">
+    <section class="sample-intro"><span class="eyebrow">A DIFFERENT HEIGHT, A DIFFERENT WALK</span><h1>오름의 높이를,<br><em>한눈에 느낄 수 있도록.</em></h1><p>낮고 완만한 언덕부터 길게 솟은 봉우리까지.<br>높이에 따라 달라지는 세 가지 오름 이미지를 비교해 보세요.</p><span class="sample-pill">같은 바닥선 · 같은 이미지 크기 · 다른 봉우리 높이</span></section>
+    <section aria-labelledby="compare-title"><div class="sample-section-heading"><h2 id="compare-title">높이로 나눈 세 가지 풍경</h2><span>그림은 지형을 단순화한 일러스트입니다.</span></div><div id="height-examples" class="height-examples"></div><p class="height-disclaimer">✳ 샘플 높이는 실제 오름의 측정값이 아닙니다. 이 화면의 구분은 높이 기준이며, 실제 탐방 난이도는 경사·거리·노면 등에 따라 달라집니다.</p></section>
+    <section class="height-playground" aria-labelledby="playground-title"><div class="playground-copy"><span class="eyebrow">TRY YOUR OWN HEIGHT</span><h2 id="playground-title">숫자를 바꾸면,<br>오름도 달라져요.</h2><p>높이 값을 넣으면 세 구간 중 하나를 선택해<br>봉우리의 형태를 자동으로 바꿉니다.</p><label for="height-range">샘플 높이</label><div class="height-number-line"><input id="height-number" type="number" min="0" max="300" step="1" value="140" aria-label="샘플 높이 숫자"><span>m</span><span id="live-level" class="level-badge"></span></div><input id="height-range" type="range" min="0" max="300" step="1" value="140"><div class="range-labels"><span>0m</span><span>100m</span><span>200m</span><span>300m</span></div><div class="height-presets" aria-label="높이 예시 선택"><button data-height="60">낮음 60m</button><button data-height="140">중간 140m</button><button data-height="240">높음 240m</button></div><p id="height-input-error" role="alert"></p></div><div class="playground-art"><div id="live-landscape"></div><div class="live-caption" aria-live="polite" id="live-caption"></div></div></section>
+    <aside class="sample-method"><strong>샘플 구분 기준</strong><p>낮음: 100m 미만 · 중간: 100m 이상 200m 미만 · 높음: 200m 이상</p><span>실제 데이터에 적용할 때에는 해발고도와 주변 지면에서 솟은 높이(비고)를 구분해서 사용할 수 있습니다.</span></aside>
+  </main><footer><a class="footer-brand" href="/">오름오름</a><span>작은 발걸음이 모여, 나만의 제주가 됩니다.</span><small>로컬 디자인 샘플</small></footer>
+</body></html>
