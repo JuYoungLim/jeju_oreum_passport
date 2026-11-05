@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#285547">
+  <meta name="description" content="가고 싶은 제주 오름을 찜하고, 다녀온 오름에 도장을 찍어요. 나만의 작은 제주 여행 수첩, 오름오름.">
+  <title>오름오름 · 나의 제주 오름 수첩</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/src/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 이동</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="#/" aria-label="오름오름 홈"><svg viewBox="0 0 40 32" aria-hidden="true"><path d="M2 27 15 6l11 21M18 27l9-15 11 15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="5" r="3" fill="#d69250"/></svg><span>오름오름<small>JEJU OREUM CLUB</small></span></a>
+    <nav aria-label="주 메뉴"><a href="#/" data-nav="all">오름 둘러보기</a><a href="#/?view=favorites" data-nav="favorites">찜한 오름 <span id="nav-favorites">0</span></a><a href="#/?view=visited" data-nav="visited">나의 도장 <span id="nav-visited">0</span></a></nav>
+    <span class="header-note">제주를 천천히, 하나씩.</span>
+  </div></header>
+  <main id="main" tabindex="-1"><p class="loading">오름 수첩을 펼치고 있어요…</p></main>
+  <footer><a class="footer-brand" href="#/">오름오름</a><span>작은 발걸음이 모여, 나만의 제주가 됩니다.</span><small>기록은 이 브라우저에 저장돼요 · 풍경은 오름을 표현한 일러스트예요</small></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
