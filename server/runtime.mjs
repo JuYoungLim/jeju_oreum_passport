@@ -8,7 +8,9 @@ let handler;
 export default async function handle(req, res) {
   handler ??= (async () => {
     const root = fileURLToPath(new URL('../', import.meta.url));
-    if (!process.env.BLOB_READ_WRITE_TOKEN && !(process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN)) throw new Error('Connect the private Blob store to this Vercel project');
+    // Functions receive OIDC through request context, not necessarily process.env.
+    // Let the Blob SDK resolve and refresh credentials from that context.
+    if (!process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) throw new Error('Connect the private Blob store to this Vercel project');
     const catalog = JSON.parse(await readFile(new URL('../data/oreums.json', import.meta.url), 'utf8'));
     const prefix = process.env.VERCEL_ENV === 'production' ? 'production' : 'preview';
     const repository = createBlobRepository({ path: `oreum/${prefix}/v1/notebooks.json` });
