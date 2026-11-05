@@ -8,10 +8,11 @@ function blobMock() {
   let value = null, version = 0;
   const calls = [];
   const sdk = {
+    async head() { return { etag: String(version) }; },
     async get(path, options) {
       calls.push({ method: 'get', path, options });
       if (!value) return null;
-      return { statusCode: 200, stream: new Response(value).body, blob: { etag: String(version) } };
+      return { statusCode: 200, stream: new Response(value).body, blob: { etag: `"${version}"` } };
     },
     async put(path, next, options) {
       calls.push({ method: 'put', path, options });
