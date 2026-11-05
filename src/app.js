@@ -1,11 +1,13 @@
-import { STORAGE_KEY, restoreRecords, toggleRecord, filterRecords } from './state.js';
+import { STORAGE_KEY, restoreRecords, filterRecords } from './state.js';
 import { landscape } from './landscape.js';
+import { notebookRequest, createNotebookUI } from './notebook.js';
 
 const main = document.querySelector('main');
 const heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
 const pin = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>';
 const mountain = '<svg viewBox="0 0 40 32" aria-hidden="true"><path d="m3 27 13-21 12 21M21 27l8-13 9 13"/></svg>';
-let records = [], timer, storageAvailable = true;
+let records = [], catalog = [], timer;
+const notebookUI = createNotebookUI({ onUpdated: book => { records = restoreRecords(catalog, JSON.stringify(book.records)); render(); }, notify: message => toast(message) });
 let previousRoute = '';
 const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const stamp = (small = false) => `<span class="stamp ${small ? 'stamp-small' : ''}" aria-label="방문 완료"><span>JEJU OREUM</span>${mountain}<strong>방문 완료</strong><span>잘 다녀왔어요</span></span>`;
@@ -49,13 +51,13 @@ function listPage({region,view}) {
 function detailPage(id) {
   const item = records.find(x => x.id === id);
   if (!item) return '<section class="empty"><h1>오름을 찾을 수 없어요</h1><a class="primary" href="#/">목록으로 돌아가기</a></section>';
-  return `<section class="detail"><a class="back-link" href="${sessionStorageSafe()}">← 오름 목록으로</a><div class="detail-layout"><div class="detail-art">${landscape(records.indexOf(item),true)}${item.visited ? stamp() : ''}<span class="art-label">JEJU OREUM CLUB · ${String(records.indexOf(item)+1).padStart(2,'0')}</span></div><div class="detail-copy"><span class="eyebrow">${escapeHtml(item.region)} · ${escapeHtml(item.district)}</span><h1>${escapeHtml(item.name)}</h1><p class="detail-tagline">${escapeHtml(item.tagline)}</p><div class="detail-divider"></div><h2>이 오름의 이야기</h2><p class="description">${escapeHtml(item.description)}</p><dl><dt>${pin} 위치</dt><dd>${escapeHtml(item.location)}</dd><dt>풍경 키워드</dt><dd>${escapeHtml(item.keyword)}</dd></dl><div class="detail-actions"><button class="favorite-button ${item.favorite?'selected':''}" data-action="favorite" data-id="${id}" aria-pressed="${item.favorite}">${heart}${item.favorite?'찜했어요':'찜하기'}</button><button class="primary visit-button ${item.visited?'visited-button':''}" data-action="visited" data-id="${id}" aria-pressed="${item.visited}">${item.visited?'✓ 방문 완료 · 도장 취소':'도장 찍기 · 방문 완료'}</button></div><p class="save-note">기록은 이 브라우저에 자동으로 저장돼요.</p><a class="source-link" href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.sourceName)}에서 원문 보기 ↗</a><p class="source-note">공식 안내를 바탕으로 짧게 요약했어요.<br>출입 가능 여부와 탐방 안내는 방문 전에 확인해 주세요.</p></div></div></section>`;
+  return `<section class="detail"><a class="back-link" href="${sessionStorageSafe()}">← 오름 목록으로</a><div class="detail-layout"><div class="detail-art">${landscape(records.indexOf(item),true)}${item.visited ? stamp() : ''}<span class="art-label">JEJU OREUM CLUB · ${String(records.indexOf(item)+1).padStart(2,'0')}</span></div><div class="detail-copy"><span class="eyebrow">${escapeHtml(item.region)} · ${escapeHtml(item.district)}</span><h1>${escapeHtml(item.name)}</h1><p class="detail-tagline">${escapeHtml(item.tagline)}</p><div class="detail-divider"></div><h2>이 오름의 이야기</h2><p class="description">${escapeHtml(item.description)}</p><dl><dt>${pin} 위치</dt><dd>${escapeHtml(item.location)}</dd><dt>풍경 키워드</dt><dd>${escapeHtml(item.keyword)}</dd></dl><div class="detail-actions"><button class="favorite-button ${item.favorite?'selected':''}" data-action="favorite" data-id="${id}" aria-pressed="${item.favorite}">${heart}${item.favorite?'찜했어요':'찜하기'}</button><button class="primary visit-button ${item.visited?'visited-button':''}" data-action="visited" data-id="${id}" aria-pressed="${item.visited}">${item.visited?'✓ 방문 완료 · 도장 취소':'도장 찍기 · 방문 완료'}</button></div><p class="save-note">기록은 나의 수첩에 자동으로 저장돼요.</p><a class="source-link" href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.sourceName)}에서 원문 보기 ↗</a><p class="source-note">공식 안내를 바탕으로 짧게 요약했어요.<br>출입 가능 여부와 탐방 안내는 방문 전에 확인해 주세요.</p></div></div></section>`;
 }
 function sessionStorageSafe() { try { const value=sessionStorage.getItem('oreum.lastList') || '#/'; return value.startsWith('#/') ? escapeHtml(value) : '#/'; } catch { return '#/'; } }
 function render() {
   const current = route();
   if (!current.id) { try { sessionStorage.setItem('oreum.lastList',location.hash || '#/'); } catch {} }
-  main.innerHTML = current.id ? detailPage(current.id) : listPage(current);
+  main.innerHTML = `<div class="notebook-strip"><span><i></i> 나만의 수첩 · ${notebookUI.notebook?.id.slice(0, 8) || '연결 중'}</span><button type="button" id="notebook-open">복구 코드 · 수첩 불러오기 ↗</button></div>` + (current.id ? detailPage(current.id) : listPage(current));
   document.querySelectorAll('[data-nav]').forEach(el => { if (!current.id && el.dataset.nav===current.view) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current'); });
   document.querySelector('#nav-favorites').textContent = records.filter(x=>x.favorite).length;
   document.querySelector('#nav-visited').textContent = records.filter(x=>x.visited).length;
@@ -63,27 +65,39 @@ function render() {
   document.title = item ? `${item.name} · 오름오름` : '오름오름 · 나의 제주 오름 수첩';
   if (previousRoute !== location.hash) { window.scrollTo(0,0); previousRoute=location.hash; }
 }
-document.addEventListener('click',event=>{
+document.addEventListener('click',async event=>{
+  if(event.target.closest('#notebook-open')) return notebookUI.show();
   const button = event.target.closest('[data-action]'); if (!button) return;
   const {id,action} = button.dataset;
-  records = toggleRecord(records,id,action);
-  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(records)); storageAvailable=true; } catch { storageAvailable=false; }
-  const item=records.find(x=>x.id===id);
-  render();
-  document.querySelector(`[data-action="${action}"][data-id="${id}"]`)?.focus({preventScroll:true});
-  toast(!storageAvailable ? '브라우저 저장 공간을 사용할 수 없어 이번 화면에만 기록돼요.' : action==='favorite' ? (item.favorite?`${item.name}, 마음에 담았어요.`:'찜을 해제했어요.') : (item.visited?`${item.name} 도장 꾹! 잘 다녀왔어요.`:'방문 도장을 취소했어요.'));
+  const item = records.find(x=>x.id===id); if(!item) return;
+  button.disabled = true;
+  try {
+    await notebookUI.change(id,action,!item[action]);
+    const updated=records.find(x=>x.id===id);
+    toast(action==='favorite' ? (updated.favorite ? updated.name+'을 마음에 담았어요.' : '찜을 해제했어요.') : (updated.visited ? updated.name+' 도장 꾹! 잘 다녀왔어요.' : '방문 도장을 취소했어요.'));
+  } catch(error) { toast(error.message); }
+  finally { button.disabled=false; document.querySelector('[data-action="'+action+'"][data-id="'+id+'"]')?.focus({preventScroll:true}); }
 });
 document.addEventListener('change',event=>{ if(event.target.id==='view-filter') location.hash=listUrl(route().region,event.target.value); });
 window.addEventListener('hashchange',()=>{ if(location.hash==='#collection') document.querySelector('#collection')?.scrollIntoView({behavior:'smooth'}); else { render(); main.focus({preventScroll:true}); } });
-window.addEventListener('storage',event=>{ if(event.key===STORAGE_KEY || event.key===null) { records=restoreRecords(records,event.newValue); render(); } });
-
 async function init() {
   try {
-    const response=await fetch('/data/oreums.json'); if(!response.ok) throw new Error('Catalog fetch failed');
-    const catalog=await response.json(); let raw=null;
-    try { raw=localStorage.getItem(STORAGE_KEY); } catch { storageAvailable=false; }
-    records=restoreRecords(catalog,raw); render();
-    if(!storageAvailable) toast('브라우저 저장을 사용할 수 없어 이번 화면에만 기록돼요.');
-  } catch { main.innerHTML='<section class="empty"><h1>오름 수첩을 불러오지 못했어요</h1><p>연결을 확인하고 페이지를 새로고침해 주세요.</p><button class="primary" id="retry">다시 불러오기</button></section>'; document.querySelector('#retry').onclick=init; }
+    const response=await fetch('/data/oreums.json'); if(!response.ok) throw new Error('오름 목록을 불러오지 못했어요.');
+    catalog=await response.json();
+    let result, created=false;
+    try { result=await notebookRequest(); }
+    catch(error) {
+      if(error.status!==401) throw error;
+      let raw=null; try { raw=localStorage.getItem(STORAGE_KEY); } catch {}
+      const initial=restoreRecords(catalog,raw).map(({id,favorite,visited})=>({id,favorite,visited}));
+      result=await notebookRequest('', 'POST', {records:initial}); created=true;
+    }
+    notebookUI.apply(result.notebook);
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    if(created) notebookUI.show(true);
+  } catch(error) {
+    main.innerHTML='<section class="empty"><h1>수첩을 연결하지 못했어요</h1><p>'+escapeHtml(error.message)+'</p><button class="primary" id="retry">다시 연결하기</button></section>';
+    document.querySelector('#retry').onclick=init;
+  }
 }
 init();
